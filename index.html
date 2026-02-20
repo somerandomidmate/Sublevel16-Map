@@ -5,13 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-Level Maze Overlay</title>
     <style>
+        /* ADDING YOUR CUSTOM FONTS */
+        @font-face {
+            font-family: 'ComicNeue-Bold';
+            src: url('Fonts/ComicNeue-Angular-Bold.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'ComicNeue-Regular';
+            src: url('Fonts/ComicNeue-Angular-Regular.ttf') format('truetype');
+        }
+
         :root {
             --bg-color: #1a1a1a;
             --accent-color: #00ffcc;
         }
 
         body {
-            font-family: sans-serif;
+            /* Sets the default text to Regular */
+            font-family: 'ComicNeue-Regular', sans-serif;
             background-color: var(--bg-color);
             color: white;
             display: flex;
@@ -19,10 +31,9 @@
             align-items: center;
             margin: 0;
             padding: 20px;
-            overflow: hidden; /* Prevents body scroll while zooming */
+            overflow: hidden;
         }
 
-        /* NEW: Layout Wrapper for Legend and Map */
         .main-layout {
             display: flex;
             flex-direction: row;
@@ -41,7 +52,9 @@
             z-index: 10;
         }
 
+        /* BUTTONS GET THE BOLD FONT */
         button {
+            font-family: 'ComicNeue-Bold', sans-serif;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
@@ -58,17 +71,16 @@
         }
 
         #floor-display {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             margin: 0 15px;
             min-width: 100px;
             display: inline-block;
             text-align: center;
         }
 
-        /* Container stays fixed */
         .maze-container {
             position: relative;
-            width: 70vw; /* Reduced width to make room for legend */
+            width: 70vw;
             height: 75vh;
             border: 2px solid #444;
             overflow: hidden;
@@ -80,14 +92,18 @@
             cursor: grabbing;
         }
 
-        /* NEW: Side Legend Styles */
         .side-legend {
-            width: 400px;
+            width: 200px;
             background: #333;
             padding: 10px;
             border-radius: 8px;
             border: 2px solid #444;
             text-align: center;
+        }
+
+        /* LEGEND TITLE GETS BOLD */
+        .side-legend p {
+            font-family: 'ComicNeue-Bold', sans-serif;
         }
 
         .side-legend img {
@@ -96,7 +112,6 @@
             border-radius: 4px;
         }
 
-        /* This div moves and zooms */
         #pan-zoom-viewport {
             position: absolute;
             top: 0;
@@ -131,13 +146,12 @@
         <span id="floor-display">Floor 1</span>
         <button onclick="changeFloor(1)">Next Floor</button>
         <button onclick="resetView()" style="background: #666; color: white;">Reset View</button>
-        <p style="font-size: 0.8rem; text-align: center; margin-top: 10px; color: #aaa;">
+        <p style="font-size: 0.9rem; text-align: center; margin-top: 10px; color: #aaa;">
             Arrows to swap | Scroll to Zoom | Drag to Pan
         </p>
     </div>
 
     <div class="main-layout">
-        
         <div class="maze-container" id="container">
             <div id="pan-zoom-viewport">
                 <img src="Maps/floor1.png" class="maze-layer active" alt="Floor 1">
@@ -147,14 +161,13 @@
         </div>
 
         <div class="side-legend">
-            <p style="margin-top: 0; font-weight: bold; color: var(--accent-color);">MAP LEGEND</p>
+            <p style="margin-top: 0; color: var(--accent-color);">MAP LEGEND</p>
             <img src="Maps/legend.png" alt="Legend">
         </div>
-
     </div>
 
     <script>
-        // --- EXISTING FLOOR LOGIC ---
+        // Logic remains exactly the same as your previous version
         let currentFloor = 0;
         const layers = document.querySelectorAll('.maze-layer');
         const display = document.getElementById('floor-display');
@@ -178,7 +191,6 @@
             if (e.key === "ArrowLeft" || e.key === "ArrowDown") changeFloor(-1);
         });
 
-        // --- NEW ZOOM & PAN LOGIC ---
         const container = document.getElementById('container');
         const viewport = document.getElementById('pan-zoom-viewport');
 
@@ -188,19 +200,14 @@
         let isDragging = false;
         let startX, startY;
 
-        // Zooming
         container.addEventListener('wheel', (e) => {
             e.preventDefault();
             const zoomSpeed = 0.1;
-            if (e.deltaY < 0) {
-                scale += zoomSpeed;
-            } else {
-                scale = Math.max(0.5, scale - zoomSpeed);
-            }
+            if (e.deltaY < 0) scale += zoomSpeed;
+            else scale = Math.max(0.5, scale - zoomSpeed);
             applyTransform();
         }, { passive: false });
 
-        // Panning
         container.addEventListener('mousedown', (e) => {
             isDragging = true;
             startX = e.clientX - originX;
@@ -214,9 +221,7 @@
             applyTransform();
         });
 
-        window.addEventListener('mouseup', () => {
-            isDragging = false;
-        });
+        window.addEventListener('mouseup', () => { isDragging = false; });
 
         function applyTransform() {
             viewport.style.transform = `translate(${originX}px, ${originY}px) scale(${scale})`;
