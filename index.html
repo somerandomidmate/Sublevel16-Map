@@ -22,6 +22,16 @@
             overflow: hidden; /* Prevents body scroll while zooming */
         }
 
+        /* NEW: Layout Wrapper for Legend and Map */
+        .main-layout {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            width: 95vw;
+        }
+
         .controls {
             margin-bottom: 20px;
             background: #333;
@@ -58,7 +68,7 @@
         /* Container stays fixed */
         .maze-container {
             position: relative;
-            width: 90vw;
+            width: 70vw; /* Reduced width to make room for legend */
             height: 75vh;
             border: 2px solid #444;
             overflow: hidden;
@@ -68,6 +78,22 @@
 
         .maze-container:active {
             cursor: grabbing;
+        }
+
+        /* NEW: Side Legend Styles */
+        .side-legend {
+            width: 200px;
+            background: #333;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #444;
+            text-align: center;
+        }
+
+        .side-legend img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
         }
 
         /* This div moves and zooms */
@@ -110,12 +136,21 @@
         </p>
     </div>
 
-    <div class="maze-container" id="container">
-        <div id="pan-zoom-viewport">
-            <img src="Maps/floor1.png" class="maze-layer active" alt="Floor 1">
-            <img src="Maps/floor2.png" class="maze-layer" alt="Floor 2">
-            <img src="Maps/floor3.png" class="maze-layer" alt="Floor 3">
+    <div class="main-layout">
+        
+        <div class="maze-container" id="container">
+            <div id="pan-zoom-viewport">
+                <img src="Maps/floor1.png" class="maze-layer active" alt="Floor 1">
+                <img src="Maps/floor2.png" class="maze-layer" alt="Floor 2">
+                <img src="Maps/floor3.png" class="maze-layer" alt="Floor 3">
+            </div>
         </div>
+
+        <div class="side-legend">
+            <p style="margin-top: 0; font-weight: bold; color: var(--accent-color);">MAP LEGEND</p>
+            <img src="Maps/legend.png" alt="Legend">
+        </div>
+
     </div>
 
     <script>
