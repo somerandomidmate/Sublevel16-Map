@@ -82,7 +82,6 @@
 
         .maze-container:active { cursor: grabbing; }
 
-        /* Use a huge workspace so layers have room to align 1:1 */
         #pan-zoom-viewport {
             position: absolute;
             top: 0;
@@ -108,9 +107,8 @@
             top: 0;
             left: 0;
             opacity: 0;
-            transition: opacity 0.3s ease-in-out;
+            transition: opacity 0.3s ease-in-out, transform 0s; /* Instant nudge, smooth fade */
             pointer-events: none;
-            /* Critical: Ensure images don't resize themselves */
             display: block;
         }
 
@@ -127,7 +125,7 @@
         <button onclick="changeFloor(1)">Next Floor</button>
         <button onclick="autoFitView()" style="background: #666; color: white;">Reset View</button>
         <p style="font-size: 0.9rem; text-align: center; margin-top: 10px; color: #aaa;">
-            Arrows to swap | Scroll to Zoom | Drag to Pan
+            Arrows to swap - Scroll to Zoom - Drag to Pan
         </p>
     </div>
 
@@ -147,6 +145,13 @@
     </div>
 
     <script>
+        // pixel offset
+        const offsets = [
+            { x: 0,   y: 0 },   // Floor 1
+            { x: 10,  y: -5 },  // Floor 2
+            { x: -20, y: 15 }   // Floor 3
+        ];
+
         let currentFloor = 0;
         const layers = document.querySelectorAll('.maze-layer');
         const display = document.getElementById('floor-display');
@@ -160,29 +165,31 @@
         let isDragging = false;
         let startX, startY;
 
-        // Auto-center and fit function
+        // apply the offset
+        function applyNudges() {
+            layers.forEach((layer, index) => {
+                if (offsets[index]) {
+                    layer.style.left = offsets[index].x + "px";
+                    layer.style.top = offsets[index].y + "px";
+                }
+            });
+        }
+        applyNudges();
+
         function autoFitView() {
             if (!firstImage.complete) return;
-
             const containerRect = container.getBoundingClientRect();
             const imgWidth = firstImage.naturalWidth;
             const imgHeight = firstImage.naturalHeight;
-
-            // Calculate scale to fit image inside container
             const scaleX = containerRect.width / imgWidth;
             const scaleY = containerRect.height / imgHeight;
-            scale = Math.min(scaleX, scaleY) * 0.9; // 90% zoom to leave a little padding
-
-            // Center the image
+            scale = Math.min(scaleX, scaleY) * 0.9;
             originX = (containerRect.width - imgWidth * scale) / 2;
             originY = (containerRect.height - imgHeight * scale) / 2;
-
             applyTransform();
         }
 
-        // Run auto-fit when the first image loads
         firstImage.onload = autoFitView;
-        // Fallback if image is already cached/loaded
         if (firstImage.complete) autoFitView();
 
         function updateDisplay() {
@@ -210,16 +217,13 @@
             const rect = container.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
-
             const mapX = (mouseX - originX) / scale;
             const mapY = (mouseY - originY) / scale;
-
             if (e.deltaY < 0) {
                 scale += zoomSpeed;
             } else {
                 scale = Math.max(0.05, scale - zoomSpeed);
             }
-
             originX = mouseX - mapX * scale;
             originY = mouseY - mapY * scale;
             applyTransform();
