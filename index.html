@@ -163,7 +163,6 @@
     </div>
 
     <script>
-        // Logic remains exactly the same as your previous version
         let currentFloor = 0;
         const layers = document.querySelectorAll('.maze-layer');
         const display = document.getElementById('floor-display');
@@ -196,11 +195,33 @@
         let isDragging = false;
         let startX, startY;
 
+        // ZOOM AT CURSOR LOGIC
         container.addEventListener('wheel', (e) => {
             e.preventDefault();
+            
             const zoomSpeed = 0.1;
-            if (e.deltaY < 0) scale += zoomSpeed;
-            else scale = Math.max(0.5, scale - zoomSpeed);
+            const rect = container.getBoundingClientRect();
+            
+            // Get mouse position relative to the container
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // Calculate mouse position relative to the zoomed map
+            const mapX = (mouseX - originX) / scale;
+            const mapY = (mouseY - originY) / scale;
+
+            // Determine new scale
+            const oldScale = scale;
+            if (e.deltaY < 0) {
+                scale += zoomSpeed;
+            } else {
+                scale = Math.max(0.5, scale - zoomSpeed);
+            }
+
+            // Adjust origin so the point under the mouse stays the same
+            originX = mouseX - mapX * scale;
+            originY = mouseY - mapY * scale;
+
             applyTransform();
         }, { passive: false });
 
