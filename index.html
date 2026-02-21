@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-Level Maze Overlay</title>
     <style>
-        /* ADDING YOUR CUSTOM FONTS */
         @font-face {
             font-family: 'ComicNeue-Bold';
             src: url('Fonts/ComicNeue-Angular-Bold.ttf') format('truetype');
         }
-
         @font-face {
             font-family: 'ComicNeue-Regular';
             src: url('Fonts/ComicNeue-Angular-Regular.ttf') format('truetype');
@@ -22,7 +20,6 @@
         }
 
         body {
-            /* Sets the default text to Regular */
             font-family: 'ComicNeue-Regular', sans-serif;
             background-color: var(--bg-color);
             color: white;
@@ -51,7 +48,6 @@
             z-index: 10;
         }
 
-        /* BUTTONS GET THE BOLD FONT */
         button {
             font-family: 'ComicNeue-Bold', sans-serif;
             padding: 10px 20px;
@@ -64,9 +60,7 @@
             margin: 0 5px;
         }
 
-        button:hover {
-            opacity: 0.8;
-        }
+        button:hover { opacity: 0.8; }
 
         #floor-display {
             font-size: 1.4rem;
@@ -86,8 +80,16 @@
             cursor: grab;
         }
 
-        .maze-container:active {
-            cursor: grabbing;
+        .maze-container:active { cursor: grabbing; }
+
+        /* THE FIX: Fixed width viewport so images align 1:1 */
+        #pan-zoom-viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4000px; /* Set this to larger than your biggest image */
+            height: 4000px;
+            transform-origin: 0 0;
         }
 
         .side-legend {
@@ -98,33 +100,14 @@
             text-align: center;
         }
 
-        /* LEGEND TITLE GETS BOLD */
-        .side-legend p {
-            font-family: 'ComicNeue-Bold', sans-serif;
-        }
-
-        .side-legend img {
-            width: 100%;
-            height: auto;
-        }
-
-        #pan-zoom-viewport {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transform-origin: 0 0;
-            transition: transform 0.1s ease-out;
-        }
+        .side-legend p { font-family: 'ComicNeue-Bold', sans-serif; }
+        .side-legend img { width: 100%; height: auto; }
 
         .maze-layer {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+            /* Do not use object-fit: contain here */
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
             pointer-events: none;
@@ -189,39 +172,33 @@
         const container = document.getElementById('container');
         const viewport = document.getElementById('pan-zoom-viewport');
 
-        let scale = 1;
+        let scale = 0.2; // Start zoomed out so the large viewport fits
         let originX = 0;
         let originY = 0;
         let isDragging = false;
         let startX, startY;
 
-        // ZOOM AT CURSOR LOGIC
+        // Apply initial zoomed-out view
+        applyTransform();
+
         container.addEventListener('wheel', (e) => {
             e.preventDefault();
-            
-            const zoomSpeed = 0.1;
+            const zoomSpeed = scale * 0.1; // Dynamic speed based on current scale
             const rect = container.getBoundingClientRect();
-            
-            // Get mouse position relative to the container
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
 
-            // Calculate mouse position relative to the zoomed map
             const mapX = (mouseX - originX) / scale;
             const mapY = (mouseY - originY) / scale;
 
-            // Determine new scale
-            const oldScale = scale;
             if (e.deltaY < 0) {
                 scale += zoomSpeed;
             } else {
-                scale = Math.max(0.5, scale - zoomSpeed);
+                scale = Math.max(0.05, scale - zoomSpeed);
             }
 
-            // Adjust origin so the point under the mouse stays the same
             originX = mouseX - mapX * scale;
             originY = mouseY - mapY * scale;
-
             applyTransform();
         }, { passive: false });
 
@@ -245,7 +222,7 @@
         }
 
         function resetView() {
-            scale = 1;
+            scale = 0.2;
             originX = 0;
             originY = 0;
             applyTransform();
